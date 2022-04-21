@@ -14,11 +14,12 @@ const getAllJournals = async (req, res, next) => {
         return res.status(404).json({ message: "Unable to find out" })
     }
     return res.status(200).json({ journals, message: "Able to found" })
-   
+
 }
 const getAllJournalsById = async (req, res, next) => {
     const id = req.params.id;
     let contributors;
+    let subCategory;
     let journals;
     let journalData;
     let journalContainer
@@ -26,8 +27,10 @@ const getAllJournalsById = async (req, res, next) => {
         journals = await Journal.findById(id);
         journalContainer = journals;
         const contributorId = journals.contributorId;
+        const categoryId = journals.categoryId;
         contributors = await contributorsModel.findById(contributorId)
-        journalData = [journalContainer,contributors]
+        subCategory = await categoryModel.findById(categoryId)
+        journalData = [journalContainer, contributors, subCategory]
     } catch (error) {
         console.log(error)
     }
@@ -39,22 +42,35 @@ const getAllJournalsById = async (req, res, next) => {
 }
 const addJournals = async (req, res, next) => {
     let journals;
-    const { articleTitle, journalTitle, fromPage, toPage, volume, issue, publicationStatus,placeOfPublication, publicationDate, file } = req.body.addJournals;
+    const { articleTitle, journalTitle, fromPage, toPage, volume, issue, publicationStatus, placeOfPublication, publicationDate, file } = req.body.addJournals;
     let contributorData;
-    let subjectData;
+    // let subjectData;
     let categoryData;
     try {
         const contributors = req.body.Contributors;
+        const categoryName = req.body.subcategoryLists
+        // const subjectName = req.body.categoryLists
         contributorData = new contributorsModel({
             contributors
         })
-
+        // subjectData = new mainSubjectModel({
+        //     subjectName
+        // })
+        categoryData = new categoryModel({
+            categoryName
+        })
+        // const mainCategoryResult = await subjectData.save()
+        const subCategoryResult = await categoryData.save()
         const result = await contributorData.save();
+        const categoryId = subCategoryResult._id
+        // const subjectId = mainCategoryResult._id
         const contributorId = result._id;
         journals = new Journal({
             articleTitle,
             journalTitle,
             contributorId,
+            // subjectId,
+            categoryId,
             fromPage,
             toPage,
             volume,
@@ -81,10 +97,10 @@ const addJournals = async (req, res, next) => {
 const updateJournals = async (req, res, next) => {
     console.log(req.body);
     const id = req.params.id;
-    const { articleTitle, journalTitle, contributorId, fromPage, toPage, volume, issue, publicationStatus,placeOfPublication, publicationDate, file } = req.body.journalData;
+    const { articleTitle, journalTitle, contributorId, subjectId, categoryId, fromPage, toPage, volume, issue, publicationStatus, placeOfPublication, publicationDate, file } = req.body.journalData;
     let journals;
     let contributors = req.body.newcontributorsData;
-
+    let categoryName = req.body.subcategoryLists;
     try {
         journals = await Journal.findByIdAndUpdate(id, {
             articleTitle,
@@ -98,13 +114,18 @@ const updateJournals = async (req, res, next) => {
             publicationDate,
             file
         });
-        
+
         journals = await journals.save();
         let contributorsData = await contributorsModel.findByIdAndUpdate(contributorId, {
             contributors
         });
         await contributorsData.save();
         
+        let subCategoryData = await categoryModel.findByIdAndUpdate(categoryId,{
+            categoryName
+        })
+        await subCategoryData.save()
+
     } catch (error) {
         console.log(error)
     }
@@ -122,8 +143,10 @@ const deleteJournals = async (req, res, next) => {
         journalFindId = await Journal.findById(id)
         console.log(journalFindId);
         const getContributorId = journalFindId.contributorId
+        const getSubcategoryId = journalFindId.categoryId
         journals = await Journal.findByIdAndRemove(id)
         await contributorsModel.findByIdAndRemove(getContributorId)
+        await categoryModel.findByIdAndRemove(getSubcategoryId)
     } catch (error) {
         console.log(error)
     }
@@ -134,9 +157,84 @@ const deleteJournals = async (req, res, next) => {
 
 }
 
-const fetchJournalsFile = function(req,res){
-   
-    res.download('images/journals/'+req.params.path)
+const addMainCategory = async (req, res, next) => {
+    
+    let mainCategory;
+    const {subjectName} = req.body;
+
+    try {
+        mainCategory = new mainSubjectModel({
+            subjectName
+        })
+
+        await mainCategory.save();
+    } catch (error) {
+        console.log(error);
+    }
+    if(!mainCategory) {
+        return res.status(500).json({message: "Failed"})
+    }
+    return res.status(201).json({mainCategory, message: "Success"});
+    
+}
+
+const getAllMainCategory = async (req, res, next) => {
+    let allMainCategory;
+    try {
+        allMainCategory = await mainSubjectModel.find();
+    }catch (error) {
+        console.log(error)
+    }
+
+    if(!allMainCategory){
+        return res.status(404).json({message: 'Unable to find Main Category'})
+    }
+
+    return res.status(200).json({allMainCategory, message: 'Successfully retrieved all Main Category list'})
+
+}
+
+const addSubCategory = async (req, res, next) => {
+    
+    let subCategory;
+    const {categoryName} = req.body;
+
+    try {
+        subCategory = new categoryModel({
+            categoryName
+        })
+
+        await subCategory.save();
+    } catch (error) {
+        console.log(error);
+    }
+    if(!subCategory) {
+        return res.status(500).json({message: "Failed"})
+    }
+    return res.status(201).json({subCategory, message: "Success"});
+    
+}
+
+const getAllSubCategory = async (req, res, next) => {
+    let allSubCategory;
+    try {
+        allSubCategory = await categoryModel.find();
+    }catch (error) {
+        console.log(error)
+    }
+
+    if(!allSubCategory){
+        return res.status(404).json({message: 'Unable to find Sub Category'})
+    }
+
+    return res.status(200).json({allSubCategory, message: 'Successfully retrieved all Sub Category list'})
+
+}
+
+
+const fetchJournalsFile = function (req, res) {
+
+    res.download('images/journals/' + req.params.path)
 }
 
 exports.getAllJournals = getAllJournals;
@@ -145,3 +243,7 @@ exports.getAllJournalsById = getAllJournalsById;
 exports.updateJournals = updateJournals;
 exports.deleteJournals = deleteJournals;
 exports.fetchJournalsFile = fetchJournalsFile;
+exports.addMainCategory = addMainCategory;
+exports.getAllMainCategory = getAllMainCategory;
+exports.addSubCategory = addSubCategory;
+exports.getAllSubCategory = getAllSubCategory;

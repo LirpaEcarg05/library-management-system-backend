@@ -6,32 +6,67 @@ const chapterModel = require('../models/chapter_model')
 const getAllBooks = async (req, res) => {
     let books;
     let contributor;
-    let bookData; 
-    let contributorData;
+    let bookData = []; 
+    let contributorData = [];
     let bookContent ;
+    let allBooks;
     try {
-        books = await booksModel.find();
-        contributor = await contributorsModel.find()
+
+//   books = await booksModel.find()
+        books = await booksModel.aggregate([
+            {
+                $lookup: {
+                    from: 'contributors',
+                    localField: 'contributorId',
+                    foreignField: '_id',
+                    as: 'allBooks'
+                }
+            }
+        ]);
+        console.log(books.length)
+
+        // if(books.length > 0) {
+        //       contributorData = Object.values(books[0].allBooks[0].contributors);
+        //     console.log(contributorData);
+        //     console.log(typeof(contributorData));
+        //     console.log(typeof(books[0].allBooks[0].contributors));
+
+        // }
         
+      
+
+        // console.log(books);
+ // contributor = await contributorsModel.find();       
         // for(let i= 0; i<books.length;i++){
         //     let contributorId = books[i].contributorId;
-        //     bookContent = books[i];
+        //     console.log('una nga for loop');
+        // //     bookContent = books[i];
         //     for(let j = 0; j<contributor.length; j++){
-        //         if(contributor[j]._id === contributorId){
+        //         console.log('ning sud ka ari?');
+        //         console.log(contributorId , contributor[j]._id)
+        //         console.log(contributor[j]._id.equals(contributorId));
+        //         if(contributor[j]._id.equals(contributorId)){
+        //             console.log('here2');
+        //             // books[i].listOfContributor = contributor[j]
+                  
         //             contributorData = contributor[j];
+                    
         //         }
         //     }
-        //     bookData += {bookContent,contributorData}   
+        // //     bookData += {bookContent,contributorData} 
+        //     let tempBook = books[i];
+            
+        //         bookData = bookData.concat({tempBook,contributorData});
         // }
         // console.log(bookData);
-        bookData = [books,contributor]
+    // bookData = [books,contributor]
     } catch (err) {
         console.log(err);
     }
     if (!books) {
         return res.status(404).json({ message: "No books found" });
     }
-    return res.status(200).json({ bookData, message: "successfully added" });
+    return res.status(200).json({ books, message: "successfully Retrieved" });
 
 }
 
