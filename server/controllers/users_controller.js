@@ -1,4 +1,5 @@
 const userModel = require('../models/user_model');
+const crypto = require('crypto-js');
 
 const getAllUsers = async (req, res, next) => {
     let users;
@@ -14,25 +15,41 @@ const getAllUsers = async (req, res, next) => {
 
 }
 
-const getAllUsersById = async (req, res, next) => {
-    const id = req.params.id;
+const getAllUsersBySchoolId = async (req, res, next) => {
+    const schoolId = req.params.id;
     let users;
 
     try {
-        users = await userModel.findById(id)
+        users = await userModel.findOne({schoolId})
     } catch (err) {
         console.log(error)
     }
     if (!users) {   
         return res.status(204).json({ message: 'No users Id' })
     }
-    return res.status(200).json({ users,message: 'Yes users' })
+    return res.status(200).json({ users,message: 'admin' })
+}
+
+const getAllUsersById = async (req, res, next) => {
+    const _id = req.params.id;
+    let users;
+
+    try {
+        users = await userModel.findOne({_id})
+    } catch (err) {
+        console.log(error)
+    }
+    if (!users) {   
+        return res.status(204).json({ message: 'No users Id' })
+    }
+    return res.status(200).json({ users, message: 'users' })
 }
 
 const addUsers = async (req, res, next) => {
     let users;
-    const { schoolId, userType, userFirstName, userMiddleName, userLastName, userCourse, userYear, userDepartment, userImage, bookShelfId, userEmail, userPassword, userStatus, userRole } = req.body
-   
+    const { schoolId, userType, userFirstName, userMiddleName, userLastName, userCourse, userYear, userDepartment, userImage, bookShelfId, userEmail, userStatus, userRole } = req.body
+    const userPassword = crypto.SHA256(req.body.userPassword).toString(crypto.enc.Base64);
+    // userPassword.toString(crypto.enc.Base64);
     try {
         users = new userModel({
             schoolId,
@@ -122,3 +139,4 @@ exports.getAllUsersById = getAllUsersById;
 exports.addUsers = addUsers;
 exports.updateUsers = updateUsers;
 exports.deleteUsers = deleteUsers;
+exports.getAllUsersBySchoolId = getAllUsersBySchoolId;

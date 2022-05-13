@@ -18,12 +18,12 @@ const journalModel = new Schema({
     },
     subjectId:{
         // type: Schema.Types.ObjectId, ref: 'main-subjects',
-        type: String,
+        type: Object,
         default: null,
     },
     categoryId:{
         // type: Schema.Types.ObjectId, ref: 'sub-categories',
-        type: String,
+        type: Array,
         default: null,
     },
     fromPage: {
@@ -55,7 +55,7 @@ const journalModel = new Schema({
         default: null
     },
     file: {
-        type: String,
+        type: Object,
         default: null,
     }
 

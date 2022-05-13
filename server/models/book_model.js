@@ -29,14 +29,24 @@ const books = new Schema({
         default: null,
     },
 
+    bookPlacePublished: {
+        type: String,
+        default: null,
+    },
+
     bookPublisherDate: {
         type: String,
         default: null
     },
 
     categoryId: {
-        type: Schema.Types.ObjectId, ref: 'category',
+        // type: Schema.Types.ObjectId, ref: 'category',
+        type: Array,
         // type: String,
+        default: null,
+    },
+    subjectId: {
+        type: Object,
         default: null,
     },
     chapterId: [

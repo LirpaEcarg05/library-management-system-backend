@@ -2,6 +2,7 @@ const Journal = require('../models/journals_model');
 const contributorsModel = require('../models/contributors_model')
 const mainSubjectModel = require('../models/main-subjects_model')
 const categoryModel = require('../models/sub-category_model')
+var mongoose = require('mongoose');
 
 const getAllJournals = async (req, res, next) => {
     let journals;
@@ -42,13 +43,29 @@ const getAllJournalsById = async (req, res, next) => {
 }
 const addJournals = async (req, res, next) => {
     let journals;
-    const { articleTitle, journalTitle, fromPage, toPage, volume, issue, publicationStatus, placeOfPublication, publicationDate, file } = req.body.addJournals;
+    const { articleTitle, categoryId, subjectId, journalTitle, fromPage, toPage, volume, issue, publicationStatus, placeOfPublication, publicationDate} = req.body.addJournals;
+    console.log(categoryId);
     let contributorData;
     // let subjectData;
     let categoryData;
+    // console.log('idTeting1', req)
+    // console.log('idTeting1',req.file.id)
+    console.log('idTeting2',res.params)
+    console.log('idTeting3',req.body)
+    let file; 
+   
+    if(req.body.fileId !== 'id' ) {   
+      
+        file = mongoose.Types.ObjectId(req.body.fileId);
+        // console.log('fileCehckingjControl', file);
+    }else {
+        file = null;
+    }
+   
+ 
     try {
         const contributors = req.body.Contributors;
-        const categoryName = req.body.subcategoryLists
+        // const categoryName = req.body.subcategoryLists
         // const subjectName = req.body.categoryLists
         contributorData = new contributorsModel({
             contributors
@@ -56,20 +73,20 @@ const addJournals = async (req, res, next) => {
         // subjectData = new mainSubjectModel({
         //     subjectName
         // })
-        categoryData = new categoryModel({
-            categoryName
-        })
+        // categoryData = new categoryModel({
+        //     categoryName
+        // })
         // const mainCategoryResult = await subjectData.save()
-        const subCategoryResult = await categoryData.save()
+        // const subCategoryResult = await categoryData.save()
         const result = await contributorData.save();
-        const categoryId = subCategoryResult._id
+        // const categoryId = subCategoryResult._id
         // const subjectId = mainCategoryResult._id
         const contributorId = result._id;
         journals = new Journal({
             articleTitle,
             journalTitle,
             contributorId,
-            // subjectId,
+            subjectId,
             categoryId,
             fromPage,
             toPage,
@@ -98,9 +115,16 @@ const updateJournals = async (req, res, next) => {
     console.log(req.body);
     const id = req.params.id;
     const { articleTitle, journalTitle, contributorId, subjectId, categoryId, fromPage, toPage, volume, issue, publicationStatus, placeOfPublication, publicationDate, file } = req.body.journalData;
+    // let categoryId = [];
+    // const categoryList = req.body.journalData.categoryId;
+    // for(let item in categoryList){
+    //     console.log(item);
+    //     categoryId = categoryId.concat(item);
+    // }
     let journals;
     let contributors = req.body.newcontributorsData;
-    let categoryName = req.body.subcategoryLists;
+    // let categoryName = req.body.subcategoryLists;
+    // let mainCategory = req.body.categoryLists;
     try {
         journals = await Journal.findByIdAndUpdate(id, {
             articleTitle,
@@ -109,6 +133,8 @@ const updateJournals = async (req, res, next) => {
             toPage,
             volume,
             issue,
+            subjectId,
+            categoryId,
             publicationStatus,
             placeOfPublication,
             publicationDate,
@@ -120,11 +146,14 @@ const updateJournals = async (req, res, next) => {
             contributors
         });
         await contributorsData.save();
-        
-        let subCategoryData = await categoryModel.findByIdAndUpdate(categoryId,{
-            categoryName
-        })
-        await subCategoryData.save()
+        // let mainCategoryData = await mainSubjectModel.findByIdAndUpdate(subjectId,{
+        //     mainCategory
+        // })
+        // await mainCategoryData.save()
+        // let subCategoryData = await categoryModel.findByIdAndUpdate(categoryId,{
+        //     categoryName
+        // })  
+        // await subCategoryData.save()
 
     } catch (error) {
         console.log(error)
@@ -143,10 +172,9 @@ const deleteJournals = async (req, res, next) => {
         journalFindId = await Journal.findById(id)
         console.log(journalFindId);
         const getContributorId = journalFindId.contributorId
-        const getSubcategoryId = journalFindId.categoryId
         journals = await Journal.findByIdAndRemove(id)
         await contributorsModel.findByIdAndRemove(getContributorId)
-        await categoryModel.findByIdAndRemove(getSubcategoryId)
+       
     } catch (error) {
         console.log(error)
     }
@@ -181,7 +209,7 @@ const addMainCategory = async (req, res, next) => {
 const getAllMainCategory = async (req, res, next) => {
     let allMainCategory;
     try {
-        allMainCategory = await mainSubjectModel.find();
+        allMainCategory = await mainSubjectModel.find();    
     }catch (error) {
         console.log(error)
     }
@@ -193,7 +221,23 @@ const getAllMainCategory = async (req, res, next) => {
     return res.status(200).json({allMainCategory, message: 'Successfully retrieved all Main Category list'})
 
 }
+//DELETE MAIN CATEGORY
+const removeMainCategory = async(req,res,next)=>{
+    const id = req.params.id
+    let mainCategory;
+    try{
+        mainCategory = await mainSubjectModel.findByIdAndRemove(id);
+    }catch(err){
+        console.log(err)
+    }
+    if(!mainCategory){
+        return res.status(404).json({message:"Wala pa na delete"})
+    }
+    return res.status(200).json({mainCategory,message:"Delete na"})
+}
+//END OF MAIN CATEGORY
 
+// SUB CATEGORY
 const addSubCategory = async (req, res, next) => {
     
     let subCategory;
@@ -230,7 +274,21 @@ const getAllSubCategory = async (req, res, next) => {
     return res.status(200).json({allSubCategory, message: 'Successfully retrieved all Sub Category list'})
 
 }
-
+//DELETE SUB CATEGORY
+const removeSubCategory = async(req,res,next)=>{
+    const id = req.params.id
+    let SubCategory;
+    try{
+        SubCategory = await categoryModel.findByIdAndRemove(id);
+    }catch(err){
+        console.log(err)
+    }
+    if(!SubCategory){
+        return res.status(404).json({message:"Not Deleted"})
+    }
+    return res.status(200).json({SubCategory,message:" Deleted"})
+}
+// END OF SUB CATEGORY
 
 const fetchJournalsFile = function (req, res) {
 
@@ -245,5 +303,8 @@ exports.deleteJournals = deleteJournals;
 exports.fetchJournalsFile = fetchJournalsFile;
 exports.addMainCategory = addMainCategory;
 exports.getAllMainCategory = getAllMainCategory;
+exports.removeMainCategory = removeMainCategory;  
+
 exports.addSubCategory = addSubCategory;
 exports.getAllSubCategory = getAllSubCategory;
+exports.removeSubCategory = removeSubCategory;

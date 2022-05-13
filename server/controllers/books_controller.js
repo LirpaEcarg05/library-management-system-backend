@@ -96,7 +96,8 @@ const getById = async (req, res, next) => {
 
 
 const addBooks = async (req, res, next) => {
-    const { bookTitle, chapterId, bookEdition, bookVolume, bookPublisher, bookPublisherDate, categoryId, bookFile} = req.body.addBooks;
+    console.log(req.body.addBooks);
+    const { bookTitle, chapterId, bookEdition, bookVolume, bookPublisher, bookPlacePublished, bookPublisherDate, categoryId, bookFile, subjectId} = req.body.addBooks;
     let book;
     try {
         console.log(req.body.Contributors);
@@ -122,8 +123,10 @@ const addBooks = async (req, res, next) => {
             bookEdition,
             bookVolume,
             bookPublisher,
+            bookPlacePublished,
             bookPublisherDate,
             categoryId,
+            subjectId,
             bookFile,
           
         });
@@ -143,7 +146,7 @@ const addBooks = async (req, res, next) => {
 
 const updateBooks = async (req, res, next) => {
     const id = req.params.id;
-    const { bookTitle, contributorId, chapterId, bookEdition, bookVolume, bookPublisher, bookPublisherDate, bookDescription, categoryId, bookFile} = req.body.bookData;
+    const { bookTitle, contributorId, chapterId, bookEdition, bookVolume, bookPublisher, bookPlacePublished, bookPublisherDate, bookDescription, categoryId, subjectId, bookFile} = req.body.bookData;
     const contributors = req.body.contributors;
     const chapterData = req.body.chapterData;
 
@@ -163,9 +166,11 @@ const updateBooks = async (req, res, next) => {
             bookEdition,
             bookVolume,
             bookPublisher,
+            bookPlacePublished,
             bookPublisherDate,
             bookDescription,
             categoryId,
+            subjectId,
             bookFile,
             
         });
