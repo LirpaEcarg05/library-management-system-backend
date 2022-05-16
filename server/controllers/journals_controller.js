@@ -51,7 +51,7 @@ const addJournals = async (req, res, next) => {
     // console.log('idTeting1', req)
     // console.log('idTeting1',req.file.id)
     console.log('idTeting2',res.params)
-    console.log('idTeting3',req.body)
+    console.log('idTeting3',req.body.fileId)
     let file; 
    
     if(req.body.fileId !== 'id' ) {   

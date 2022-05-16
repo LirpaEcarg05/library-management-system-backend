@@ -63,6 +63,10 @@ const useSchema = new Schema({
         type: String,
         default: null,
     },
+    userSchool: {
+        type: String,
+        default: null,
+    },
     userRole:{
         type: String,
         default: null,
