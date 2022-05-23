@@ -1,7 +1,7 @@
 const booksModel = require('../models/book_model');
 const contributorsModel = require('../models/contributors_model');
 const chapterModel = require('../models/chapter_model')
-
+var mongoose = require('mongoose');
 
 const getAllBooks = async (req, res) => {
     let books;
@@ -97,7 +97,7 @@ const getById = async (req, res, next) => {
 
 const addBooks = async (req, res, next) => {
     console.log(req.body.addBooks);
-    const { bookTitle, chapterId, bookEdition, bookVolume, bookPublisher, bookPlacePublished, bookPublisherDate, categoryId, bookFile, subjectId} = req.body.addBooks;
+    const { bookTitle, chapterId, bookEdition, bookVolume, bookPublisher, bookPlacePublished, bookPublisherDate, categoryId, subjectId} = req.body.addBooks;
     let book;
     try {
         console.log(req.body.Contributors);
@@ -112,10 +112,17 @@ const addBooks = async (req, res, next) => {
 
         // get contributor id
         const contributorId = result._id;
-
+        let bookCoverId; 
+   
+        if(req.body.bookCoverId == 'id' ) {   
+            bookCoverId = null;
+         
+            // console.log('fileCehckingjControl', file);
+        }
         // end
 
         // insert book
+
         book = new booksModel({
             bookTitle,
             contributorId,
@@ -127,11 +134,11 @@ const addBooks = async (req, res, next) => {
             bookPublisherDate,
             categoryId,
             subjectId,
-            bookFile,
+            bookCoverId,
           
         });
         await book.save();
-        console.log(book);
+        console.log(book, "Check the adding of book Cover Id");
     } catch (err) {
         console.log(err)
     }
@@ -143,10 +150,9 @@ const addBooks = async (req, res, next) => {
 
 
 
-
 const updateBooks = async (req, res, next) => {
     const id = req.params.id;
-    const { bookTitle, contributorId, chapterId, bookEdition, bookVolume, bookPublisher, bookPlacePublished, bookPublisherDate, bookDescription, categoryId, subjectId, bookFile} = req.body.bookData;
+    const { bookTitle, contributorId, chapterId, bookEdition, bookVolume, bookPublisher, bookPlacePublished, bookPublisherDate, bookDescription, categoryId, subjectId} = req.body.bookData;
     const contributors = req.body.contributors;
     const chapterData = req.body.chapterData;
 
@@ -154,6 +160,19 @@ const updateBooks = async (req, res, next) => {
     console.log(chapterId);
     console.log(chapterId == [] && chapterData == [])
     let book;
+    console.log('idTeting2',res.params)
+    console.log('idTeting3',req.body)
+    
+    let bookCoverId; 
+   
+    if(req.body.bookCoverId !== 'id' ) {   
+      
+        bookCoverId = mongoose.Types.ObjectId(req.body.bookCoverId);
+        // console.log('fileCehckingjControl', file);
+    }else {
+        bookCoverId = null;
+    }
+   
     try {
         
         // if(!chapterId && chapterData !=[] ){
@@ -171,7 +190,7 @@ const updateBooks = async (req, res, next) => {
             bookDescription,
             categoryId,
             subjectId,
-            bookFile,
+            bookCoverId,
             
         });
         book = await book.save()

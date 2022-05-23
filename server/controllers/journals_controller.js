@@ -48,12 +48,11 @@ const addJournals = async (req, res, next) => {
     let contributorData;
     // let subjectData;
     let categoryData;
-    // console.log('idTeting1', req)
-    // console.log('idTeting1',req.file.id)
-    console.log('idTeting2',res.params)
     console.log('idTeting3',req.body.fileId)
+    console.log('articleId',req.body.articleId)
+
     let file; 
-   
+    let ArticleCheck;
     if(req.body.fileId !== 'id' ) {   
       
         file = mongoose.Types.ObjectId(req.body.fileId);
@@ -61,6 +60,21 @@ const addJournals = async (req, res, next) => {
     }else {
         file = null;
     }
+
+    let articleId; 
+   
+
+
+    if(req.body.articleId !== 'id' ) {   
+        articleId =  mongoose.Types.ObjectId(req.body.articleId);
+        // console.log("gwapa sud na ari", article)
+
+        // console.log('fileCehckingjControl', file);
+    }else {
+        articleId = null;
+        console.log("gwapa wa kasud")
+    }
+   
    
  
     try {
@@ -95,7 +109,8 @@ const addJournals = async (req, res, next) => {
             publicationStatus,
             placeOfPublication,
             publicationDate,
-            file
+            file,
+            articleId
         });
         console.log(journals)
         await journals.save();
@@ -114,14 +129,17 @@ const addJournals = async (req, res, next) => {
 const updateJournals = async (req, res, next) => {
     console.log(req.body);
     const id = req.params.id;
-    const { articleTitle, journalTitle, contributorId, subjectId, categoryId, fromPage, toPage, volume, issue, publicationStatus, placeOfPublication, publicationDate, file } = req.body.journalData;
+    const { articleTitle, journalTitle, contributorId, subjectId, categoryId, fromPage, toPage, volume, issue, publicationStatus, placeOfPublication, publicationDate, file, articleId } = req.body.journalData;
     // let categoryId = [];
     // const categoryList = req.body.journalData.categoryId;
     // for(let item in categoryList){
     //     console.log(item);
     //     categoryId = categoryId.concat(item);
     // }
+    console.log("try seeing the result", req.body.journalData)
     let journals;
+    // let ;
+    // let articleId;
     let contributors = req.body.newcontributorsData;
     // let categoryName = req.body.subcategoryLists;
     // let mainCategory = req.body.categoryLists;
@@ -138,7 +156,8 @@ const updateJournals = async (req, res, next) => {
             publicationStatus,
             placeOfPublication,
             publicationDate,
-            file
+            file,
+            articleId
         });
 
         journals = await journals.save();

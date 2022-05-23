@@ -11,10 +11,10 @@ const chapters = new Schema({
         type: String,
         default: null
     },
-    chapterFile:{
-        type: String,
-        default: null
-    }
+    chapterFileId: {
+        type: Object,
+        default: null,
+    },
 })
 
 module.exports = mongoose.model('chapters', chapters);

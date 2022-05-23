@@ -57,6 +57,10 @@ const journalModel = new Schema({
     file: {
         type: Object,
         default: null,
+    },
+    articleId: {
+        type: Object,
+        default: null,
     }
 
 })

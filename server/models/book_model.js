@@ -57,10 +57,11 @@ const books = new Schema({
         }
     ],
 
-    bookFile: {
-        type: String,
+    bookCoverId: {
+        type: Object,
         default: null,
     },
+   
    
     // createdAt:{
     //     type: Date
